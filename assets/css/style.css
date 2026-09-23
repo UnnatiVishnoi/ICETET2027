@@ -2551,3 +2551,263 @@ table {
 		min-height: 60rem;
 	}
 }
+
+/* === Responsiveness fixes: layout reflow only, no visual redesign === */
+
+/* 1. Hero: stack slides in one grid cell instead of absolute overlay.
+      The hero now grows with its content at every viewport, so slide
+      content can never collide with the organizer/dots bottom bar.
+      Crossfade is preserved via opacity + delayed visibility. */
+.hero {
+	display: grid;
+}
+
+.hero__slide {
+	grid-area: 1 / 1;
+	position: relative;
+	inset: auto;
+	min-width: 0;
+	visibility: hidden;
+	transition: opacity 700ms cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 700ms;
+}
+
+.hero__slide.is-active {
+	visibility: visible;
+	opacity: 1;
+	transition: opacity 700ms cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0s;
+}
+
+/* Decorative overlays share the slide cell so auto-placement stays intact. */
+.hero-network,
+.hero-orb {
+	grid-area: 1 / 1;
+}
+
+.hero__bottom {
+	min-width: 0;
+}
+
+/* 2. Hero bottom bar: keep overlay look on desktop, reflow below
+      content on phones so buttons and organizer info never overlap. */
+@media (max-width: 39.99rem) {
+	.hero__bottom {
+		position: static;
+		grid-column: 1;
+		grid-row: 2;
+		padding-bottom: 1.5rem;
+	}
+}
+
+/* 3. Slider indicators: always one flex row of 3 bars, evenly spaced. */
+.hero__dots {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex-wrap: nowrap;
+}
+
+/* 4. Medium-desktop navbar: slightly tighter spacing so links,
+      logos and the Submit action share one row without crowding.
+      Link wrapping itself is left to natural flex behavior. */
+@media (min-width: 60rem) and (max-width: 84rem) {
+	.site-header__inner {
+		gap: 1rem;
+	}
+
+	.site-nav a {
+		padding: 0.5rem 0.5rem;
+		font-size: 0.8rem;
+	}
+
+	.nav-submit {
+		padding: 0.55rem 0.8rem;
+		font-size: 0.72rem;
+	}
+}
+
+/* Narrow landscape tablets / small laptops: logos + nav + action share
+      ~960px. The long institute name collapses to the crest logo here
+      (full name remains in hero strip and footer); links get one line. */
+@media (min-width: 60rem) and (max-width: 71rem) {
+	.site-header .brand-lockup__text--host {
+		display: none;
+	}
+
+	.site-nav a {
+		white-space: nowrap;
+	}
+}
+
+/* 5. Mobile menu: Submit Paper stays accessible inside the dropdown;
+      menu opens smoothly and never exceeds the viewport height. */
+.site-nav__submit-item {
+	display: none;
+}
+
+@media (max-width: 59.99rem) {
+	.site-nav.is-open {
+		max-height: calc(100svh - 6rem);
+		overflow-y: auto;
+		animation: nav-drop 220ms ease;
+	}
+
+	.site-nav__submit-item {
+		display: block;
+		margin-top: 0.5rem;
+	}
+
+	.site-nav .nav-submit {
+		display: inline-flex;
+		width: 100%;
+		justify-content: center;
+	}
+
+	.site-home .site-nav .nav-submit {
+		color: var(--color-orange-500);
+	}
+}
+
+@keyframes nav-drop {
+	from {
+		opacity: 0;
+		transform: translateY(-0.5rem);
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+/* 6. Text wrapping safety: long names, affiliations, kicker lines and
+      stat labels wrap inside their cards at narrow widths. */
+.hero__kicker {
+	max-width: 100%;
+	overflow-wrap: anywhere;
+}
+
+.stat-item span {
+	overflow-wrap: anywhere;
+}
+
+.track-card h3,
+.track-card ul,
+.committee-card h3,
+.committee-card p,
+.fact-card strong {
+	overflow-wrap: anywhere;
+}
+
+/* 7. Topbar on very small phones: the contact email keeps full
+      priority; the "coming soon" placeholder note (rendered only when
+      no social URLs are configured) yields instead of squeezing it. */
+@media (max-width: 26rem) {
+	.site-topbar__links {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
+	.site-topbar__links a {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.site-social > span {
+		display: none;
+	}
+}
+
+/* 8. Lightbox fits very small phones with room for controls. */
+@media (max-width: 26rem) {
+	.lightbox {
+		grid-template-columns: 2.2rem minmax(0, 1fr) 2.2rem;
+	}
+
+	.lightbox__close,
+	.lightbox__previous,
+	.lightbox__next {
+		width: 2.2rem;
+		height: 2.2rem;
+		font-size: 1rem;
+	}
+}
+
+/* === Content fixes: show full photos, coming-soon cards, map spacing === */
+
+/* 9. Committee portraits: show the complete photograph without cropping
+      heads or distorting faces. Contain within the circular frame over a
+      clean dark backdrop that matches the card. */
+.committee-card img {
+	object-fit: contain;
+}
+
+/* 10. Keynote "Coming Soon" card: clean placeholder that matches the
+      speaker-card dimensions and overlay style. No broken images. */
+.speaker-photo-placeholder {
+	display: grid;
+	place-items: center;
+	width: 100%;
+	height: 22rem;
+	background: linear-gradient(145deg, #1b2852, #0b1230);
+	color: #a5f3fc;
+	font-family: var(--font-mono);
+	font-size: 0.8rem;
+	font-weight: 700;
+	letter-spacing: 0.15em;
+	text-transform: uppercase;
+}
+
+.speaker-photo-placeholder span {
+	padding: 0.7rem 1.1rem;
+	border: 1px solid rgba(34, 211, 238, 0.4);
+	border-radius: 999px;
+	background: rgba(34, 211, 238, 0.08);
+}
+
+@media (max-width: 40rem) {
+	.speaker-photo-placeholder {
+		height: 18rem;
+	}
+}
+
+/* 11. Venue map column: breathing room between map, caption and button. */
+.map-frame + .button {
+	margin-top: 1rem;
+}
+
+.venue-label {
+	margin: 0 0 0.75rem;
+}
+
+/* 12. Organizing department cards: same dark-navy track-card language,
+      equal heights with buttons pinned to the card foot. */
+.dept-code {
+	color: #a5f3fc;
+	font-family: var(--font-mono);
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.15em;
+}
+
+.dept-card {
+	display: flex;
+	flex-direction: column;
+}
+
+.dept-card h3,
+.dept-card p {
+	overflow-wrap: anywhere;
+}
+
+.dept-card p {
+	margin-bottom: 1.5rem;
+	color: #a8b8d3;
+	font-size: 0.9rem;
+}
+
+.dept-card .button {
+	margin-top: auto;
+	align-self: flex-start;
+	max-width: 100%;
+}
