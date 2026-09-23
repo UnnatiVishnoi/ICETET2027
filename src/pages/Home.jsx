@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { siteData } from '../data/siteData.js';
-import { asset } from '../utils.js';
+import { asset, srcSetFor } from '../utils.js';
 import Hero from '../components/Hero.jsx';
 import Countdown from '../components/Countdown.jsx';
 
@@ -53,7 +53,14 @@ function Gallery() {
       <div className="gallery-grid">
         {images.map((image, index) => (
           <button key={image} type="button" aria-label={`Open gallery image ${index + 1}`} onClick={() => setActive(index)}>
-            <img src={asset(image)} alt={`ICETET event gallery image ${index + 1}`} loading="lazy" />
+            <img
+              src={asset(image)}
+              srcSet={srcSetFor(image)}
+              sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 300px"
+              alt={`ICETET event gallery image ${index + 1}`}
+              loading="lazy"
+              decoding="async"
+            />
           </button>
         ))}
       </div>
@@ -318,7 +325,14 @@ export default function Home() {
             {committeePreview.map((member) => (
               <article className="card committee-card" key={`${member.group}-${member.name}`}>
                 {member.photo ? (
-                  <img src={asset(member.photo)} alt={member.name} loading="lazy" />
+                  <img
+                    src={asset(member.photo)}
+                    srcSet={srcSetFor(member.photo)}
+                    sizes="128px"
+                    alt={member.name}
+                    loading="lazy"
+                    decoding="async"
+                  />
                 ) : (
                   <span className="initials-avatar" aria-hidden="true">
                     {initials(member.name)}

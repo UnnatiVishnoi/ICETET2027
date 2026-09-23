@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import PageBanner from '../components/PageBanner.jsx';
 import { siteData } from '../data/siteData.js';
-import { asset } from '../utils.js';
+import { asset, srcSetFor } from '../utils.js';
 
 function initials(name) {
   return name
@@ -63,7 +63,14 @@ export default function Committee() {
                 {group.visibleMembers.map((member) => (
                   <article className="card committee-card searchable-member" key={member.name}>
                     {member.photo ? (
-                      <img src={asset(member.photo)} alt={member.name} loading="lazy" />
+                      <img
+                        src={asset(member.photo)}
+                        srcSet={srcSetFor(member.photo)}
+                        sizes="128px"
+                        alt={member.name}
+                        loading="lazy"
+                        decoding="async"
+                      />
                     ) : (
                       <span className="initials-avatar" aria-hidden="true">
                         {initials(member.name)}
