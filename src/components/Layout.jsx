@@ -28,7 +28,7 @@ function ScrollToTop() {
 function useReveal() {
   const { pathname } = useLocation();
   useEffect(() => {
-    const els = document.querySelectorAll('.section, .page-banner, .card, .cta-strip');
+    const els = [...document.querySelectorAll('.section, .page-banner, .card, .cta-strip')];
     if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       els.forEach((el) => el.classList.add('is-visible'));
       return;
@@ -43,10 +43,30 @@ function useReveal() {
           }
         });
       },
-      { threshold: 0.12 }
+      // Pre-trigger slightly before elements enter the viewport so the
+      // entrance animation plays smoothly on small phone screens.
+      { threshold: 0.12, rootMargin: '0px 0px 20% 0px' }
     );
     els.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    // Safety net: committee/cards start at opacity 0 and must NEVER stay
+    // invisible if the observer stalls (older engines, throttled tabs).
+    // The observer remains the primary path; this only reveals elements
+    // near the viewport that it missed. Cleared on route change/unmount.
+    const fallback = window.setInterval(() => {
+      const vh = window.innerHeight || 800;
+      els.forEach((el) => {
+        if (el.isConnected && !el.classList.contains('is-visible')) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top < vh * 1.2 && rect.bottom > -vh * 0.2) {
+            el.classList.add('is-visible');
+          }
+        }
+      });
+    }, 1500);
+    return () => {
+      observer.disconnect();
+      window.clearInterval(fallback);
+    };
   }, [pathname]);
 }
 
